@@ -1,4 +1,8 @@
+from decimal import Decimal
+
+from coupons.models import Coupon
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from shop.models import Product
 
@@ -14,6 +18,19 @@ class Order(models.Model):
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField("оплачен", default=False)
     stripe_id = models.CharField(max_length=250, blank=True)
+    coupon = models.ForeignKey(
+        Coupon,
+        related_name="orders",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        verbose_name="купон",
+    )
+    discount = models.IntegerField(
+        "скидка",
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
 
     class Meta:
         ordering = ["-created"]
@@ -26,9 +43,20 @@ class Order(models.Model):
 
     def get_total_cost(self):
         """
-        Метод получает общую стоимость товаров, приобретенных в этом заказе.
+        Метод получает общую стоимость товаров, приобретенных в этом заказе,
+        учитывать примененную скидку.
         """
+        total_cost = self.get_total_cost_before_discount()
+        return total_cost - self.get_discount()
+
+    def get_total_cost_before_discount(self):
         return sum(item.get_cost() for item in self.items.all())
+
+    def get_discount(self):
+        total_cost = self.get_total_cost_before_discount()
+        if self.discount:
+            return total_cost * (self.discount / Decimal(100))
+        return Decimal(0)
 
     def get_stripe_url(self):
         """
