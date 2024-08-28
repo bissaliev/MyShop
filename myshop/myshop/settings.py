@@ -132,3 +132,8 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_API_VERSION = os.getenv("STRIPE_API_VERSION")
 
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+# настроечные параметры Redis
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379
+REDIS_DB = 1
