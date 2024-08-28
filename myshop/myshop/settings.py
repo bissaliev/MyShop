@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "orders.apps.OrdersConfig",
     "shop.apps.ShopConfig",
     "cart.apps.CartConfig",
+    "payment.apps.PaymentConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -107,6 +108,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -119,3 +121,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CART_SESSION_ID = "cart"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+# Настроечные параметры Stripe
+# Публикуемый ключ
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+# Секретный ключ
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_API_VERSION = os.getenv("STRIPE_API_VERSION")
+
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
