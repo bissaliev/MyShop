@@ -1,6 +1,22 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from .models import Order, OrderItem
+
+
+def order_stripe_payment(obj):
+    """
+    Принимает в качестве аргумента объект Order и
+    возвращает HTML-ссылку с URL-адресом платежа Stripe.
+    """
+    url = obj.get_stripe_url()
+    if obj.stripe_id:
+        html = f'<a href="{url}" target="_blank">{obj.stripe_id}</a>'
+        return mark_safe(html)
+    return ""
+
+
+order_stripe_payment.short_description = "Stripe payment"
 
 
 class OrderItemInline(admin.TabularInline):
@@ -19,6 +35,7 @@ class OrderAdmin(admin.ModelAdmin):
         "postal_code",
         "city",
         "paid",
+        order_stripe_payment,
         "created",
         "updated",
     ]
