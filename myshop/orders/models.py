@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from shop.models import Product
 
@@ -12,6 +13,7 @@ class Order(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField("оплачен", default=False)
+    stripe_id = models.CharField(max_length=250, blank=True)
 
     class Meta:
         ordering = ["-created"]
@@ -27,6 +29,17 @@ class Order(models.Model):
         Метод получает общую стоимость товаров, приобретенных в этом заказе.
         """
         return sum(item.get_cost() for item in self.items.all())
+
+    def get_stripe_url(self):
+        """
+        Метод используется для возврата URL-адреса информационной панели Stripe
+        для платежа, связанного с заказом.
+        """
+        if not self.stripe_id:
+            # никаких ассоциированных платежей
+            return ""
+        path = "/test/" if "_test_" in settings.STRIPE_SECRET_KEY else "/"
+        return f"https://dashboard.stripe.com{path}payments/{self.stripe_id}"
 
 
 class OrderItem(models.Model):
