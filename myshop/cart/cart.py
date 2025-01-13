@@ -6,6 +6,8 @@ from shop.models import Product
 
 
 class Cart:
+    """Класс для управления корзиной покупок"""
+
     def __init__(self, request):
         """
         Инициализировать корзину.
@@ -19,9 +21,22 @@ class Cart:
         # сохранить текущий примененный купон
         self.coupon_id = self.session.get("coupon_id")
 
-    def add(self, product, quantity=1, override_quantity=False):
+    def add(
+        self,
+        product: Product,
+        quantity: int = 1,
+        override_quantity: bool = False,
+    ) -> None:
         """
         Добавить товар в корзину либо обновить его количество.
+        Args:
+            product (Product): экземпляр product для его добавления в корзину
+            либо его обновления.
+            quantity (int): опциональное целое число с количеством товара.
+            По умолчанию равен 1.
+            override_quantity(bool): булево значение, указывающее, нужно ли
+            заменить количество переданным количеством (True) либо прибавить
+            новое количество к существующему количеству (False).
         """
         product_id = str(product.id)
         if product_id not in self.cart:
@@ -35,18 +50,18 @@ class Cart:
             self.cart[product_id]["quantity"] += quantity
         self.save()
 
-    def save(self):
+    def save(self) -> None:
         # пометить сеанс как "измененный",
         # чтобы обеспечить его сохранение
         self.session.modified = True
 
-    def remove(self, product):
+    def remove(self, product: Product) -> None:
         """
         Удалить товар из корзины.
         """
         product_id = str(product.id)
         if product_id in self.cart:
-            del self.cart
+            del self.cart[product_id]
             self.save()
 
     def __iter__(self):

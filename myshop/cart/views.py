@@ -1,50 +1,62 @@
 from coupons.forms import CouponApplyForm
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
+from django.views import View
 from shop.models import Product
 
 from .cart import Cart
 from .forms import CartAddProductForm
 
 
-@require_POST
-def cart_add(request, product_id):
+class CartAddView(View):
     """
-    Представление добавления товаров в корзину или
-    обновления количества существующих товаров.
+    Добавление товаров в корзину или обновления количества
+    существующих товаров.
     """
-    cart = Cart(request)
-    product = get_object_or_404(Product, id=product_id)
-    form = CartAddProductForm(request.POST)
-    if form.is_valid():
-        cd = form.cleaned_data
-        cart.add(
-            product=product,
-            quantity=cd["quantity"],
-            override_quantity=cd["override"],
+
+    def post(self, request, product_id):
+        cart = Cart(request)
+        product = get_object_or_404(Product, id=product_id)
+        form = CartAddProductForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            cart.add(
+                product=product,
+                quantity=cd["quantity"],
+                override_quantity=cd["override"],
+            )
+        return redirect("cart:cart_detail")
+
+
+class CartDeleteView(View):
+    """Удаление товаров из корзины."""
+
+    def post(self, request, product_id):
+        cart = Cart(request)
+        product = get_object_or_404(Product, id=product_id)
+        cart.remove(product)
+        return redirect("cart:cart_detail")
+
+
+class CartClearView(View):
+    def post(self, request):
+        cart = Cart(request)
+        cart.clear()
+        return redirect("cart:cart_detail")
+
+
+class CartDetailView(View):
+    """Отображение корзины и ее товаров."""
+
+    def get(self, request):
+        cart = Cart(request)
+        for item in cart:
+            item["update_quantity_form"] = CartAddProductForm(
+                initial={"quantity": item["quantity"], "override": True}
+            )
+
+        coupon_apply_form = CouponApplyForm()
+        return render(
+            request,
+            "cart/detail.html",
+            {"cart": cart, "coupon_apply_form": coupon_apply_form},
         )
-    return redirect("cart:cart_detail")
-
-
-@require_POST
-def cart_remove(request, product_id):
-    """Представление удаления товаров из корзины."""
-    cart = Cart(request)
-    product = get_object_or_404(Product, id=product_id)
-    cart.remove(product)
-    return redirect("cart:cart_detail")
-
-
-def cart_detail(request):
-    """Представление отображения корзины и ее товаров."""
-    cart = Cart(request)
-    for item in cart:
-        item["update_quantity_form"] = CartAddProductForm(
-            initial={"quantity": item["quantity"], "override": True}
-        )
-    coupon_apply_form = CouponApplyForm()
-    return render(
-        request,
-        "cart/detail.html",
-        {"cart": cart, "coupon_apply_form": coupon_apply_form},
-    )
