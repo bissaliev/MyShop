@@ -10,7 +10,7 @@ class Cart:
 
     def __init__(self, request):
         """
-        Инициализировать корзину.
+        Инициализация корзины.
         """
         self.session = request.session
         cart = self.session.get(settings.CART_SESSION_ID)
@@ -27,17 +27,7 @@ class Cart:
         quantity: int = 1,
         override_quantity: bool = False,
     ) -> None:
-        """
-        Добавить товар в корзину либо обновить его количество.
-        Args:
-            product (Product): экземпляр product для его добавления в корзину
-            либо его обновления.
-            quantity (int): опциональное целое число с количеством товара.
-            По умолчанию равен 1.
-            override_quantity(bool): булево значение, указывающее, нужно ли
-            заменить количество переданным количеством (True) либо прибавить
-            новое количество к существующему количеству (False).
-        """
+        """Добавить/обновить товар в корзине"""
         product_id = str(product.id)
         if product_id not in self.cart:
             self.cart[product_id] = {
@@ -51,13 +41,12 @@ class Cart:
         self.save()
 
     def save(self) -> None:
-        # пометить сеанс как "измененный",
-        # чтобы обеспечить его сохранение
+        """Сохранение изменений"""
         self.session.modified = True
 
     def remove(self, product: Product) -> None:
         """
-        Удалить товар из корзины.
+        Удаление товара из корзины.
         """
         product_id = str(product.id)
         if product_id in self.cart:
@@ -82,20 +71,19 @@ class Cart:
 
     def __len__(self):
         """
-        Подсчитать все товарные позиции в корзине.
+        Количество товарных позиции в корзине.
         """
         return sum(item["quantity"] for item in self.cart.values())
 
     def get_total_price(self):
-        """Метод расчета общей стоимости товаров в корзине."""
+        """Общая стоимости товара в корзине."""
         return sum(
             Decimal(item["price"]) * item["quantity"]
             for item in self.cart.values()
         )
 
     def clear(self):
-        """Метод очистки сеанса корзины."""
-        # удалить корзину из сеанса
+        """Очистка корзины."""
         del self.session[settings.CART_SESSION_ID]
         self.save()
 
