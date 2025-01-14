@@ -28,7 +28,7 @@ class CartAddView(View):
 
 
 class CartDeleteView(View):
-    """Удаление товаров из корзины."""
+    """Удаление товаров из корзины"""
 
     def post(self, request, product_id):
         cart = Cart(request)
@@ -38,6 +38,8 @@ class CartDeleteView(View):
 
 
 class CartClearView(View):
+    """Очистка корзины"""
+
     def post(self, request):
         cart = Cart(request)
         cart.clear()
