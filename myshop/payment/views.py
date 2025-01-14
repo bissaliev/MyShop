@@ -4,6 +4,8 @@ import stripe
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views import View
+from django.views.generic.base import TemplateView
 from orders.models import Order
 
 # создать экземпляр Stripe
@@ -11,10 +13,17 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 stripe.api_version = settings.STRIPE_API_VERSION
 
 
-def payment_process(request):
-    order_id = request.session.get("order_id", None)
-    order = get_object_or_404(Order, id=order_id)
-    if request.method == "POST":
+class PaymentProcessView(View):
+    """
+    Создание сеанса оформления платежа и перенаправление к платежной форме
+    """
+
+    def get(self, request):
+        order = self.get_order()
+        return render(request, "payment/process.html", {"order": order})
+
+    def post(self, request):
+        order = self.get_order()
         success_url = request.build_absolute_uri(reverse("payment:completed"))
         cancel_url = request.build_absolute_uri(reverse("payment:canceled"))
         # данные сеанса оформления платежа Stripe
@@ -52,13 +61,20 @@ def payment_process(request):
         session = stripe.checkout.Session.create(**session_data)
         # перенаправить к форме для платежа Stripe
         return redirect(session.url, code=303)
-    else:
-        return render(request, "payment/process.html", locals())
+
+    def get_order(self):
+        order_id = self.request.session.get("order_id", None)
+        order = get_object_or_404(Order, id=order_id)
+        return order
 
 
-def payment_completed(request):
-    return render(request, "payment/completed.html")
+class PaymentCompletedView(TemplateView):
+    """Отображение сообщения об успешных платежах"""
+
+    template_name = "payment/completed.html"
 
 
-def payment_canceled(request):
-    return render(request, "payment/canceled.html")
+class PaymentCanceledView(TemplateView):
+    """Отображение сообщения об отмененных платежах"""
+
+    template_name = "payment/completed.html"
