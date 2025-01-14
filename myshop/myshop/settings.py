@@ -133,6 +133,12 @@ STRIPE_API_VERSION = os.getenv("STRIPE_API_VERSION")
 
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
+# Celery settings with Redis
+CELERY_BROKER_URL = os.getenv("REDIS_SERVER")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_SERVER")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
 # настроечные параметры Redis
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
