@@ -1,0 +1,10 @@
+[
+    {
+        "model": "shop.category",
+        "pk": 1,
+        "fields": {
+            "name": "Чай",
+            "slug": "chaj"
+        }
+    }
+]

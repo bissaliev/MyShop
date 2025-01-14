@@ -1,0 +1,47 @@
+[
+    {
+        "model": "shop.product",
+        "pk": 1,
+        "fields": {
+            "category": 1,
+            "name": "Зеленый чай",
+            "slug": "zelenyj-chaj",
+            "image": "products/2024/08/27/green-tea_11.jpeg",
+            "description": "Зеленый чай: фото Цзя Е на Unsplash",
+            "price": "30.00",
+            "available": true,
+            "created": "2024-08-27T14:48:41.590Z",
+            "updated": "2024-08-27T14:48:41.590Z"
+        }
+    },
+    {
+        "model": "shop.product",
+        "pk": 2,
+        "fields": {
+            "category": 1,
+            "name": "Красный чай",
+            "slug": "krasnyj-chaj",
+            "image": "products/2024/08/27/redtea.webp",
+            "description": "Красный чай: фото Манки Кима на Unsplash;",
+            "price": "45.00",
+            "available": true,
+            "created": "2024-08-27T14:50:32.454Z",
+            "updated": "2024-08-27T14:50:32.454Z"
+        }
+    },
+    {
+        "model": "shop.product",
+        "pk": 3,
+        "fields": {
+            "category": 1,
+            "name": "Tea powder",
+            "slug": "tea-powder",
+            "image": "products/2024/08/27/teapowder.webp",
+            "description": "Чайный порошок: фото Фуонг Нгуена на Unsplash",
+            "price": "21.20",
+            "available": true,
+            "created": "2024-08-27T14:52:21.379Z",
+            "updated": "2024-08-27T14:52:21.379Z"
+        }
+    }
+]
