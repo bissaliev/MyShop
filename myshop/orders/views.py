@@ -6,16 +6,28 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.views import View
 
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
 from .tasks import order_created
 
 
-def order_create(request):
-    cart = Cart(request)
-    if request.method == "POST":
-        form = OrderCreateForm(request.POST)
+class OrderCreateView(View):
+    """Размещение заказа"""
+
+    form_class = OrderCreateForm
+
+    def get(self, request):
+        cart = Cart(request)
+        form = self.form_class()
+        return render(
+            request, "orders/order/create.html", {"cart": cart, "form": form}
+        )
+
+    def post(self, request):
+        cart = Cart(request)
+        form = self.form_class(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
             if cart.coupon:
@@ -36,11 +48,6 @@ def order_create(request):
             request.session["order_id"] = order.id
             # перенаправить к платежу
             return redirect(reverse("payment:process"))
-    else:
-        form = OrderCreateForm()
-    return render(
-        request, "orders/order/create.html", {"cart": cart, "form": form}
-    )
 
 
 @staff_member_required
