@@ -18,6 +18,11 @@
             <a href="{% url 'cart:cart_detail' %}">Корзина: {{ cart|length }}</a>
         </div>
         <!--Корзина-->
+        <!--Корзина-->
+        <div class="cart">
+            <a href="{% url 'cart:cart_detail' %}">Заказы: {{ cart|length }}</a>
+        </div>
+        <!--Корзина-->
     </div>
     <div id="content">
         {% block content %}
