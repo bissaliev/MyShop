@@ -1,12 +1,10 @@
-import weasyprint
 from cart.cart import Cart
-from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views import View
+from orders.services.pdf import generate_invoice_pdf
 
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
@@ -61,16 +59,9 @@ def admin_order_detail(request, order_id):
 
 @staff_member_required
 def admin_order_pdf(request, order_id):
-    """
-    Представление генерирования счетов-фактур в формате PDF для
-    существующих заказов, пользуясь сайтом администрирования.
-    """
+    """Генерация счета-фактуры в формате PDF для панели администратора."""
     order = get_object_or_404(Order, id=order_id)
-    html = render_to_string("orders/order/pdf.html", {"order": order})
-    response = HttpResponse(content_type="application/pdf")
+    pdf_content = generate_invoice_pdf(order)
+    response = HttpResponse(pdf_content, content_type="application/pdf")
     response["Content-Disposition"] = f"filename=order_{order.id}.pdf"
-    weasyprint.HTML(string=html).write_pdf(
-        response,
-        stylesheets=[weasyprint.CSS(settings.BASE_DIR / "static/css/pdf.css")],
-    )
     return response

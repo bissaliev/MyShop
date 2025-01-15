@@ -1,30 +1,21 @@
-from io import BytesIO
-
-import weasyprint
 from celery import shared_task
-from django.conf import settings
 from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
 from orders.models import Order
+from orders.services.pdf import generate_invoice_pdf
 
 
 @shared_task
 def payment_completed(order_id):
     """
-    Задание по отправке уведомления по электронной почте
-    при успешной оплате заказа.
+    Отправка уведомления на email покупателя при успешной оплате заказа.
     """
     order = Order.objects.get(id=order_id)
-    # create invoice e-mail
-    subject = f"My Shop – Invoice no. {order.id}"
-    message = "Please, find attached the invoice for your recent purchase."
+    subject = f"My Shop – Счет-фактура заказа № {order.id}"
+    message = (
+        "Пожалуйста, ознакомьтесь с приложенной счетом-фактурой за вашу "
+        "недавнюю покупку."
+    )
     email = EmailMessage(subject, message, "admin@myshop.com", [order.email])
-    # сгенерировать PDF
-    html = render_to_string("orders/order/pdf.html", {"order": order})
-    out = BytesIO()
-    stylesheets = [weasyprint.CSS(settings.BASE_DIR / "static/css/pdf.css")]
-    weasyprint.HTML(string=html).write_pdf(out, stylesheets=stylesheets)
-    # прикрепить PDF-файл
-    email.attach(f"order_{order.id}.pdf", out.getvalue(), "application/pdf")
-    # отправить электронное письмо
+    pdf_content = generate_invoice_pdf(order)
+    email.attach(f"order_{order.id}.pdf", pdf_content, "application/pdf")
     email.send()
