@@ -17,11 +17,8 @@ class OrderCreateView(View):
     form_class = OrderCreateForm
 
     def get(self, request):
-        cart = Cart(request)
         form = self.form_class()
-        return render(
-            request, "orders/order/create.html", {"cart": cart, "form": form}
-        )
+        return render(request, "orders/order/create.html", {"form": form})
 
     def post(self, request):
         cart = Cart(request)
@@ -32,13 +29,7 @@ class OrderCreateView(View):
                 order.coupon = cart.coupon
                 order.discount = cart.coupon.discount
             order.save()
-            for item in cart:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item["product"],
-                    price=item["price"],
-                    quantity=item["quantity"],
-                )
+            self.create_order_item(order, cart)
             # очистить корзину
             cart.clear()
             order_created.delay(order.id)
@@ -46,6 +37,19 @@ class OrderCreateView(View):
             request.session["order_id"] = order.id
             # перенаправить к платежу
             return redirect(reverse("payment:process"))
+
+    def create_order_item(self, order, cart):
+        items = []
+        for item in cart:
+            items.append(
+                OrderItem(
+                    order=order,
+                    product=item["product"],
+                    price=item["price"],
+                    quantity=item["quantity"],
+                )
+            )
+        OrderItem.objects.bulk_create(items)
 
 
 @staff_member_required

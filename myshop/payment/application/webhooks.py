@@ -9,6 +9,7 @@ from ..tasks import payment_completed
 
 @csrf_exempt
 def stripe_webhook(request):
+    """Веб-перехватчик события об успешном выполнение платежа"""
     payload = request.body
     sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
     event = None
@@ -22,6 +23,7 @@ def stripe_webhook(request):
     except stripe.error.SignatureVerificationError:
         # Недопустимая подпись
         return HttpResponse(status=400)
+
     if event.type == "checkout.session.completed":
         session = event.data.object
         if session.mode == "payment" and session.payment_status == "paid":

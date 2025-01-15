@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Any
 
 import stripe
 from django.conf import settings
@@ -24,20 +25,37 @@ class PaymentProcessView(View):
 
     def post(self, request):
         order = self.get_order()
-        success_url = request.build_absolute_uri(reverse("payment:completed"))
-        cancel_url = request.build_absolute_uri(reverse("payment:canceled"))
-        # данные сеанса оформления платежа Stripe
+        # создать сеанс оформления платежа Stripe
+        session = stripe.checkout.Session.create(
+            **self.get_session_data(order)
+        )
+        # перенаправить к форме для платежа Stripe
+        return redirect(session.url, code=303)
+
+    def get_session_data(self, order: Order) -> dict[str, Any]:
+        """Создание данных для Stripe сеанса"""
+        success_url = self.request.build_absolute_uri(
+            reverse("payment:completed")
+        )
+        cancel_url = self.request.build_absolute_uri(
+            reverse("payment:canceled")
+        )
         session_data = {
             "mode": "payment",
             "client_reference_id": order.id,
             "success_url": success_url,
             "cancel_url": cancel_url,
-            "line_items": [],
+            "line_items": self.get_line_items(order),
         }
-        # добавить товарные позиции заказа
-        # в сеанс оформления платежа Stripe
+        if order.coupon:
+            session_data["discounts"] = [self.get_stripe_coupon(order)]
+        return session_data
+
+    def get_line_items(self, order: Order) -> list:
+        """Генерация товарных позиций для Stripe"""
+        items = []
         for item in order.items.all():
-            session_data["line_items"].append(
+            items.append(
                 {
                     "price_data": {
                         "unit_amount": int(item.price * Decimal("100")),
@@ -49,22 +67,22 @@ class PaymentProcessView(View):
                     "quantity": item.quantity,
                 }
             )
-        # купон Stripe
-        if order.coupon:
-            stripe_coupon = stripe.Coupon.create(
-                name=order.coupon.code,
-                percent_off=order.discount,
-                duration="once",
-            )
-            session_data["discounts"] = [{"coupon": stripe_coupon.id}]
-        # создать сеанс оформления платежа Stripe
-        session = stripe.checkout.Session.create(**session_data)
-        # перенаправить к форме для платежа Stripe
-        return redirect(session.url, code=303)
+        return items
+
+    def get_stripe_coupon(self, order: Order) -> dict[str:int]:
+        """Создание купона Stripe для заказа"""
+        stripe_coupon = stripe.Coupon.create(
+            name=order.coupon.code,
+            percent_off=order.discount,
+            duration="once",
+        )
+        return {"coupon": stripe_coupon.id}
 
     def get_order(self):
         order_id = self.request.session.get("order_id", None)
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(
+            Order.objects.prefetch_related("items"), id=order_id
+        )
         return order
 
 
