@@ -5,73 +5,18 @@
 {% block content %}
 <h1>Описание заказа</h1>
 
-<table class="cart">
+{% with order.items.all as order_items %}
+{% include 'orders/includes/order_items.html' %}
+{% endwith %}
 
-    <thead>
-        <tr>
-            <th>Изображение</th>
-            <th>Название товара</th>
-            <th>Цена</th>
-            <th>Количество</th>
-            <th>Всего</th>
-        </tr>
-    </thead>
-
-    <tbody>
-
-        <!--Товары-->
-        {% for item in order.items.all %}
-        <tr class="row{% cycle '1' '2' %}">
-            <td>
-                <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}">
-            </td>
-            <td>{{ item.product.name }}</td>
-            <td class="num">${{ item.price }}</td>
-            <td class="num">{{ item.quantity }}</td>
-            <td class="num">${{ item.get_cost }}</td>
-        </tr>
-        {% endfor %}
-        <!--Товары-->
-
-        <!--Купоны-->
-        {% if order.coupon %}
-        <tr class="subtotal">
-            <td>Subtotal</td>
-            <td colspan="3"></td>
-            <td class="num">
-                ${{ order.get_total_cost_before_discount|floatformat:2 }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                "{{ order.coupon.code }}" coupon
-                ({{ order.discount }}% off)
-            </td>
-            <td colspan="3"></td>
-            <td class="num neg">
-                – ${{ order.get_discount|floatformat:2 }}
-            </td>
-        </tr>
-        {% endif %}
-        <!--Купоны-->
-
-        <!--Итоговая сумма-->
-        <tr class="total">
-            <td>Итого</td>
-            <td colspan="3"></td>
-            <td class="num">
-                ${{ order.get_total_cost|floatformat:2 }}
-            </td>
-        </tr>
-        <!--Итоговая сумма-->
-    </tbody>
-</table>
 
 <!--Форма создания сеанса оформления платежа Stripe-->
-<form action="{% url 'payment:process' %}" method="post">
-    <input type="submit" value="Оплатить сейчас">
-    {% csrf_token %}
-</form>
+<div style="margin-top: 10px">
+    <form action="{% url 'payment:process' %}" method="post">
+        <input type="submit" value="Оплатить сейчас">
+        {% csrf_token %}
+    </form>
+</div>
 <!--Форма создания сеанса оформления платежа Stripe-->
 
 {% endblock %}
