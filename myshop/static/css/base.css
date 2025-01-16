@@ -1,10 +1,69 @@
 @import url(//fonts.googleapis.com/css?family=Ubuntu);
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: helvetica, sans-serif;
+/* ==========bootstrap======================= */
+
+/* :root {
+    --bs-primary: #5993bb;
+    --bs-table-bg: #5993bb;
+} */
+
+/* .btn-primary {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+} */
+
+/* .btn-link {
+    /* background-color: var(--bs-primary) !important; */
+/* color: var(--bs-primary) !important;
+    text-decoration: none; */
+/* } */
+
+/* .btn-outline-primary {
+    border-color: var(--bs-primary);
 }
+
+.btn-outline-primary:hover {
+    border-color: #ececec;
+    background-color: var(--bs-primary);
+    color: #fff;
+} */
+
+/* .list-group-item.active {
+    /* color: var(--bs-primary); */
+/* background-color: var(--bs-primary);
+    border-color: var(--bs-primary); */
+/* } */
+
+/* .table>:not(caption)>*>* {
+    background-color: var(--bs-primary);
+} */
+
+/* ==========bootstrap======================= */
+/* ==========header======================= */
+
+.header {
+    background: #ececec;
+    color: #444;
+    margin-bottom: 50px;
+}
+
+.header a {
+    text-decoration: none;
+    color: #5993bb;
+}
+
+.header a:hover {
+    color: #77b6e2;
+}
+
+/* ==========header======================= */
+/* ==========table======================= */
+
+/* .table-primary {
+    background-color: var(--bs-table-bg) !important;
+} */
+
+/* ==========table======================= */
 
 h1,
 h2,
@@ -25,7 +84,7 @@ a:hover {
     color: #77b6e2;
 }
 
-a.button,
+/* a.button,
 input[type="submit"] {
     color: #fff;
     background: #5993bb;
@@ -33,11 +92,15 @@ input[type="submit"] {
     padding: 10px 20px;
     font-size: 14px;
     border: 0;
-}
+} */
 
 a.button.light {
     color: #666;
     background: #ededed;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    border: 0;
 }
 
 .text-left {
@@ -123,89 +186,6 @@ ul.errorlist {
     font-size: 13px;
     margin: 0 0 0 10px;
     padding: 10px 0;
-}
-
-
-#header {
-    padding: 10px 100px;
-    font-size: 18px;
-    overflow: auto;
-}
-
-#subheader {
-    background: #ececec;
-    color: #444;
-    padding: 15px 100px;
-    overflow: auto;
-}
-
-#header .logo {
-    font-family: 'Ubuntu', sans-serif;
-    float: left;
-    color: #333;
-    font-size: 22px;
-    margin-right: 10%;
-}
-
-#subheader .cart {
-    float: right;
-    padding-top: 4px;
-    margin-left: 5px;
-}
-
-#content {
-    padding: 0 100px;
-    overflow: hidden;
-}
-
-#sidebar {
-    width: 220px;
-    padding: 30px 20px 0 0;
-    float: left;
-}
-
-#sidebar ul {
-    margin: 0;
-    padding: 0;
-}
-
-#sidebar ul li {
-    margin: 0;
-    list-style: none;
-    padding: 10px 14px;
-}
-
-#sidebar ul li a {
-    display: block;
-}
-
-#sidebar ul li.selected {
-    background: #5993bb;
-    border-radius: 4px;
-}
-
-#sidebar ul li.selected a {
-    color: #fff;
-}
-
-#main {
-    float: left;
-    width: 96%;
-    margin-right: -220px;
-    overflow: hidden;
-}
-
-.product-list .item {
-    width: 25%;
-    padding: 10px 20px 10px 0;
-    float: left;
-    text-align: center;
-    line-height: 1.2;
-}
-
-.product-list .item img {
-    width: 100%;
-    margin-bottom: 8px;
 }
 
 .product-detail {
