@@ -1,0 +1,33 @@
+<div class="container">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">My shop</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                aria-label="Переключатель навигации">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav ms-auto">
+                    <a class="btn btn-outline-primary text-body-dark" href="{% url 'cart:cart_detail' %}">
+                        Корзина <span id="cart-total" class="badge text-bg-light">{{ cart|length }}</span>
+                    </a>
+                    <a class="nav-link" href="{% url 'users:registration' %}">Registration</a>
+                    {% if request.user.is_authenticated %}
+
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ request.user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#">Личный кабинет</a></li>
+                            <li><a class="dropdown-item" href="#">Выйти</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a class="nav-link" href="{% url 'users:login' %}">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
