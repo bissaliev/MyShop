@@ -13,7 +13,7 @@
 <!--Форма создания сеанса оформления платежа Stripe-->
 <div style="margin-top: 10px">
     <form action="{% url 'payment:process' %}" method="post">
-        <input type="submit" value="Оплатить сейчас">
+        <input type="submit" value="Оплатить сейчас" class="btn btn-primary">
         {% csrf_token %}
     </form>
 </div>
