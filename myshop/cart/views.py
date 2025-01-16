@@ -1,4 +1,5 @@
 from coupons.forms import CouponApplyForm
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from shop.models import Product
@@ -24,7 +25,17 @@ class CartAddView(View):
                 quantity=cd["quantity"],
                 override_quantity=cd["override"],
             )
-        return redirect("cart:cart_detail")
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "Товар добавлен в корзину",
+                    "cart_total": len(cart),
+                }
+            )
+        return JsonResponse(
+            {"success": False, "message": "Ошибка добавления товара"},
+            status=400,
+        )
 
 
 class CartDeleteView(View):

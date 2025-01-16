@@ -5,106 +5,95 @@
 {% block content %}
 <h1>Корзина</h1>
 
-<table class="cart">
-
+<table class="table table-striped table-hover align-middle">
     <thead>
-        <tr>
-            <th>Изображение</th>
-            <th>Название продукта</th>
-            <th>Количество</th>
-            <th>Удалить</th>
-            <th>Стоимость</th>
-            <th>Общая стоимость</th>
+        <tr class="table-primary">
+            <th class="text-center" scope="col">Изображение</th>
+            <th class="text-end" scope="col">Название продукта</th>
+            <th class="text-end" scope="col">Количество</th>
+            <th class="text-end" scope="col">Удалить</th>
+            <th class="text-end" scope="col">Стоимость</th>
+            <th class="text-end" scope="col">Общая стоимость</th>
         </tr>
     </thead>
-
     <tbody>
         {% for item in cart %}
         {% with product=item.product %}
         <tr>
-            <td>
+            <td class="text-center">
                 <a href="{{ product.get_absolute_url }}">
-                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" style="width: 180px;">
                 </a>
             </td>
-
-            <td>{{ product.name }}</td>
-
-            <!--Форма обновления количества товара в корзине-->
-            <td>
+            <td class="text-end">{{ product.name }}</td>
+            <td class="text-end">
+                <!--Форма обновления количества товара в корзине-->
                 <form action="{% url 'cart:cart_add' product.id %}" method="post">
                     {{ item.update_quantity_form.quantity }}
                     {{ item.update_quantity_form.override }}
-                    <input type="submit" value="Обновить">
+                    <input class="btn btn-primary" type="submit" value="Обновить">
                     {% csrf_token %}
                 </form>
+                <!--Форма обновления количества товара в корзине-->
             </td>
-            <!--Форма обновления количества товара в корзине-->
-
-            <!--Форма удаления товара из корзины-->
-            <td>
+            <td class="text-end">
+                <!--Форма удаления товара из корзины-->
                 <form action="{% url 'cart:cart_remove' product.id %}" method="post">
-                    <input type="submit" value="Удалить">
+                    <input class="btn btn-primary" type="submit" value="Удалить">
                     {% csrf_token %}
                 </form>
+                <!--Форма удаления товара из корзины-->
             </td>
-            <!--Форма удаления товара из корзины-->
-
-            <td class="num">${{ item.price }}</td>
-
-            <td class="num">${{ item.total_price }}</td>
+            <td class="text-end">${{ item.price }}</td>
+            <td class="text-end">${{ item.total_price }}</td>
         </tr>
         {% endwith %}
         {% endfor %}
-
         <!--Купоны-->
         {% if cart.coupon %}
-        <tr class="subtotal">
+        <tr>
             <td>Сумма без скидки</td>
-            <td colspan="4"></td>
-            <td class="num">${{ cart.get_total_price|floatformat:2 }}</td>
+            <td colspan="5" class="text-end">${{ cart.get_total_price|floatformat:2 }}</td>
         </tr>
         <tr>
-            <td>
-                "{{ cart.coupon.code }}" купон (скидка {{ cart.coupon.discount }}%)
-            </td>
-            <td colspan="4"></td>
-            <td class="num neg">
-                – ${{ cart.get_discount|floatformat:2 }}
-            </td>
+            <td>"{{ cart.coupon.code }}" купон (скидка {{ cart.coupon.discount }}%)</td>
+            <td colspan="5" class="text-end">– ${{ cart.get_discount|floatformat:2 }}</td>
         </tr>
         {% endif %}
         <!--Купоны-->
 
-        <tr class="total">
-            <td>Итого</td>
-            <td colspan="4"></td>
-            <td class="num">${{ cart.get_total_price_after_discount|floatformat:2 }}</td>
-        </tr>
     </tbody>
+    <tfoot>
+        <tr class="table-primary">
+            <td>Итого</td>
+            <td colspan="5" class="text-end">${{ cart.get_total_price_after_discount|floatformat:2 }}</td>
+        </tr>
+    </tfoot>
 </table>
 
-<!--Форма для ввода кода скидочного купона-->
-<h3>Примените купон:</h3>
-<div>
-    <form action="{% url 'coupons:apply' %}" method="post">
-        <p>{{ coupon_apply_form }}</p>
-        <input class="button" type="submit" value="Применить">
-        {% csrf_token %}
-    </form>
-</div>
-<!--Форма для ввода кода скидочного купона-->
-
-<p>
-    <div class="text-right">
-        <a href="{% url 'shop:product_list' %}" class="button light">Вернуть в магазин</a>
-        <a href="{% url 'orders:order_create' %}" class="button">Оформить</a>
-        <!--Форма очистки корзины-->
-        <form action="{% url 'cart:cart_clear' %}" method="post" style="display: inline;">
-            <input type="submit" value="Очистить корзину">
-            {% csrf_token %}
+<div class="d-flex justify-content-between">
+    <div>
+        <h3>Примените купон:</h3>
+        <form action="{% url 'coupons:apply' %}" method="post">
+            <div class="mb-3">
+                <label for="id_code" class="form-label">{{ coupon_apply_form.code.label }}</label>
+                <input class="form-control" type="text" name="code" required="" id="id_code">
+                {% csrf_token %}
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
         </form>
-        <!--Форма очистки корзины-->
     </div>
-</p>
+    <div class="d-flex justify-content-end align-items-end">
+        <div class="me-0">
+            <a href="{% url 'shop:product_list' %}" class="button light">Вернуть в магазин</a>
+            <a href="{% url 'orders:order_create' %}" class="btn btn-primary">Оформить</a>
+            <!--Форма очистки корзины-->
+            <form action="{% url 'cart:cart_clear' %}" method="post" style="display: inline;">
+                <input class="btn btn-primary" type="submit" value="Очистить корзину">
+                {% csrf_token %}
+            </form>
+            <!--Форма очистки корзины-->
+        </div>
+    </div>
+</div>
 {% endblock %}
