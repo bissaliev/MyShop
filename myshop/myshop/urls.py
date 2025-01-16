@@ -10,6 +10,7 @@ urlpatterns = [
     path("payment/", include("payment.urls", namespace="payment")),
     path("coupons/", include("coupons.urls", namespace="coupons")),
     path("", include("shop.urls", namespace="shop")),
+    path("users/", include("users.urls", namespace="users")),
 ]
 if settings.DEBUG:
     urlpatterns += static(

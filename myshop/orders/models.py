@@ -2,14 +2,24 @@ from decimal import Decimal
 
 from coupons.models import Coupon
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from shop.models import Product
+
+User = get_user_model()
 
 
 class Order(models.Model):
     """Заказ"""
 
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Покупатель",
+    )
     first_name = models.CharField("имя", max_length=50)
     last_name = models.CharField("фамилия", max_length=50)
     email = models.EmailField("электронный адрес")
