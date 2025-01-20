@@ -2,41 +2,25 @@
 
 /* ==========bootstrap======================= */
 
-/* :root {
-    --bs-primary: #5993bb;
-    --bs-table-bg: #5993bb;
-} */
 
-/* .btn-primary {
-    background-color: var(--bs-primary) !important;
-    border-color: var(--bs-primary) !important;
-} */
-
-/* .btn-link {
-    /* background-color: var(--bs-primary) !important; */
-/* color: var(--bs-primary) !important;
-    text-decoration: none; */
-/* } */
-
-/* .btn-outline-primary {
-    border-color: var(--bs-primary);
+.my-form-control {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgb(0, 0, 0);
+    background-color: #efefef;
+    background-clip: padding-box;
+    border: none;
+    border-radius: var(--bs-border-radius);
 }
 
-.btn-outline-primary:hover {
-    border-color: #ececec;
-    background-color: var(--bs-primary);
-    color: #fff;
-} */
-
-/* .list-group-item.active {
-    /* color: var(--bs-primary); */
-/* background-color: var(--bs-primary);
-    border-color: var(--bs-primary); */
-/* } */
-
-/* .table>:not(caption)>*>* {
-    background-color: var(--bs-primary);
-} */
+.my-form-control:focus {
+    background-color: rgb(133, 133, 133);
+    color: rgb(255, 255, 255);
+}
 
 /* ==========bootstrap======================= */
 /* ==========header======================= */

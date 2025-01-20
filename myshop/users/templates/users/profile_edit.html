@@ -27,7 +27,7 @@
                 {% endfor %}
                 {% endif %}
 
-                <form method="post" action="{% url 'users:registration' %}">
+                <form method="post" action="{% url 'users:profile_edit' %}">
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="row my-3 p-3">
@@ -47,7 +47,7 @@
                     {% endfor %}
                     <div class="col-md-6 offset-md-4">
                         <button type="submit" class="btn btn-primary">
-                            Зарегистрироваться
+                            Редактировать
                         </button>
                     </div>
                 </form>

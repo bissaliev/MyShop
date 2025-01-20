@@ -1,0 +1,41 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Личный кабинет{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div>
+        <div class="card" style="max-width: 300px;">
+            <img src="{% static 'img/not_foto_user.jpg' %}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{ object.username }}</h5>
+                <p class="card-text">
+                    <dl class="row">
+                        {% if object.first_name %}
+                        <dt class="col-sm-5">Имя: </dt>
+                        <dd class="col-sm-7">{{ object.first_name }}</dd>
+                        {% endif %}
+                        {% if object.last_name %}
+                        <dt class="col-sm-5">Фамилия: </dt>
+                        <dd class="col-sm-7">{{ object.last_name }}</dd>
+                        {% endif %}
+                        {% if object.email %}
+                        <dt class="col-sm-5">Email: </dt>
+                        <dd class="col-sm-7">{{ object.email }}</dd>
+                        {% endif %}
+                        {% if object.phone_number %}
+                        <dt class="col-sm-5">Телефон: </dt>
+                        <dd class="col-sm-7">{{ object.phone_number }}</dd>
+                        {% endif %}
+                    </dl>
+                </p>
+                <a href="{% url 'users:profile_edit' %}" class="btn btn-primary">Редактировать</a>
+            </div>
+            <div class="card-footer">
+                <small class="text-body-secondary">Последнее обновление 3 мин. назад</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

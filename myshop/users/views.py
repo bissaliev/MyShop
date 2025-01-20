@@ -1,7 +1,11 @@
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
-from users.forms import RegisterForm
-from django.contrib.auth.views import LoginView
+from django.contrib.auth import get_user_model
+from django.contrib.auth.views import LoginView, LogoutView
+from django.shortcuts import get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView, DetailView, UpdateView
+from users.forms import RegisterForm, UserChangeForm
+
+User = get_user_model()
 
 
 class RegisterView(CreateView):
@@ -12,3 +16,32 @@ class RegisterView(CreateView):
 
 class LoginUserView(LoginView):
     template_name = "users/login.html"
+
+
+class LogoutUserView(LogoutView):
+    template_name = "users/logout.html"
+
+
+class ProfileView(DetailView):
+    queryset = User.objects.all()
+    template_name = "users/profile.html"
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, pk=self.request.user.id)
+        return obj
+
+
+class ProfileEditView(UpdateView):
+    queryset = User.objects.all()
+    template_name = "users/profile_edit.html"
+    form_class = UserChangeForm
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        return get_object_or_404(queryset, pk=self.request.user.id)
+
+    def get_success_url(self):
+        return reverse("users:profile")

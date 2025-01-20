@@ -19,8 +19,13 @@
                             {{ request.user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="#">Личный кабинет</a></li>
-                            <li><a class="dropdown-item" href="#">Выйти</a></li>
+                            <li><a class="dropdown-item" href="{% url 'users:profile' %}">Личный кабинет</a></li>
+                            <li>
+                                <form action="{% url 'users:logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button style="color: #5993bb" class="dropdown-item" type="submit">Выйти</button>
+                                </form>
+                            </li>
                         </ul>
                     </div>
                     {% else %}

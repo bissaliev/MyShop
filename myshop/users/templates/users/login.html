@@ -1,7 +1,7 @@
 {% extends 'shop/base.html' %}
 {% block title %}Вход{% endblock %}
 {% block content %}
-{% comment %} {% load user_filters %} {% endcomment %}
+{% load user_tags %}
 <div class="row justify-content-center">
     <div class="col-md-8 p-5">
         <div class="card">
@@ -28,7 +28,7 @@
                     {% csrf_token %}
 
                     {% for field in form %}
-                    <div class="form-group row my-3" {% if field.field.required %} aria-required="true" {% else %} aria-required="false" {% endif %}>
+                    <div class="row my-3" {% if field.field.required %} aria-required="true" {% else %} aria-required="false" {% endif %}>
                         <label for="{{ field.id_for_label }}">
                             {{ field.label }}
                             {% if field.field.required %}
@@ -36,8 +36,8 @@
                             {% endif %}
                         </label>
                         <div>
-                            {{ field }}
-                            {% comment %} {{ field|addclass:'form-control' }} {% endcomment %}
+                            {% comment %} {{ field }} {% endcomment %}
+                            {{ field|addclass:'my-form-control' }}
                             {% if field.help_text %}
                             <small id="{{ field.id_for_label }}-help" class="form-text text-muted">
                                 {{ field.help_text|safe }}
