@@ -17,7 +17,12 @@ class OrderCreateView(View):
     form_class = OrderCreateForm
 
     def get(self, request):
-        form = self.form_class()
+        initial_data = {}
+        if request.user.is_authenticated:
+            for field in self.form_class.Meta.fields:
+                if hasattr(request.user, field):
+                    initial_data[field] = getattr(request.user, field)
+        form = self.form_class(initial=initial_data)
         return render(request, "orders/order/create.html", {"form": form})
 
     def post(self, request):
