@@ -5,34 +5,59 @@
 {{ product.name }}
 {% endblock %}
 {% block content %}
-
-<div class="product-detail">
-    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}">
-    <h1>{{ product.name }}</h1>
-    <h2>
-        <a href="{{ product.category.get_absolute_url }}">
-            {{ product.category }}
-        </a>
-    </h2>
-    <p class="price">${{ product.price }}</p>
-
-    <!--Форма добавления товара в корзину-->
-    <form class="add-to-cart-form" action="{% url 'cart:cart_add' product.id %}" method="post">
-        {% csrf_token %}
-        <div class="input-group w-25">
-            <select class="form-select" name="quantity" id="id_quantity">
-                {% for item in cart_product_form.quantity %}
-                {{ item }}
-                {% endfor %}
-            </select>
-            <button class="btn btn-primary" type="submit">Добавить в корзину</button>
+<div class="row justify-content-center align-items-center">
+    <div class="col mt-5">
+        <div class="card mb-3 mt-5 mx-auto" style="width: 1000px;">
+            <div class="row g-0">
+                <div class="col-md-6">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" class="img-fluid rounded-start" alt="...">
+                </div>
+                <div class="col-md-6">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ product.name }}</h3>
+                        <h5 class="card-text">
+                            <a href="{{ product.category.get_absolute_url }}">
+                                {{ product.category }}
+                            </a>
+                        </h5>
+                        <h5 class="card-text">
+                            ${{ product.price }}
+                        </h5>
+                        <p class="card-text">
+                            <!--Форма добавления товара в корзину-->
+                            <form class="add-to-cart-form form-group" action="{% url 'cart:cart_add' product.id %}" method="post">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <div class="col-auto">
+                                        <select class="form-select" name="quantity" id="id_quantity">
+                                            {% for item in cart_product_form.quantity %}
+                                            {{ item }}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-primary" type="submit">Добавить в корзину</button>
+                                </div>
+                            </form>
+                            <!--Форма добавления товара в корзину-->
+                        </p>
+                        <p class="card-text">{{ product.description|linebreaks }}</p>
+                        <p class="card-text">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                Описание
+                            </button>
+                        </p>
+                        <div class="collapse" id="collapseExample">
+                            <div class="card card-body">
+                                {{ product.description|linebreaks }}
+                            </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
-    <!--Форма добавления товара в корзину-->
-    <div class="mt-3">
-        {{ product.description|linebreaks }}
     </div>
-</div>
 
-<script src="{% static 'js/scripts.js' %}"></script>
-{% endblock %}
+
+    <script src="{% static 'js/scripts.js' %}"></script>
+    {% endblock %}
