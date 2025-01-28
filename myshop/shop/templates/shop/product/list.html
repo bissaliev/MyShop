@@ -2,42 +2,57 @@
 {% extends "shop/base.html" %}
 {% load static %}
 {% block title %}
-{% if category %}{{ category.name }}{% else %}Products{% endif %}
+{% if category %}{{ category.name }}{% else %}Товары{% endif %}
 {% endblock %}
 {% block content %}
+
 <div class="row">
-    <div class="col-3">
+    <div class="col-2">
         <!-- Категории -->
-        <h1>Категории</h1>
-        <div class="list-group">
-            <a href="/" class="list-group-item list-group-item-primary list-group-item-action {% if not category %}active{% endif %}">Все товары</a>
-            {% for c in categories %}
-            <a href="{{ c.get_absolute_url }}" class="list-group-item list-group-item-primary list-group-item-action {% if category.slug == c.slug %}active{% endif %}" aria-current="true">
-                {{ c.name }}
-            </a>
-            {% endfor %}
+        <div class="container">
+            <h1>Категории</h1>
+            <div class="list-group">
+                <a href="/" class="list-group-item list-group-item-primary list-group-item-action {% if not category %}active{% endif %}">Все товары</a>
+                {% for c in categories %}
+                <a href="{{ c.get_absolute_url }}" class="list-group-item list-group-item-primary list-group-item-action {% if category.slug == c.slug %}active{% endif %}" aria-current="true">
+                    {{ c.name }}
+                </a>
+                {% endfor %}
+            </div>
         </div>
         <!-- Категории -->
     </div>
-    <div class="col-9">
+    <div class="col-10">
         <h1>{% if category %}{{ category.name }}{% else %}Все товары{% endif %}</h1>
-        <div class="container">
-            <div class="row">
-                {% for product in products %}
-                <div class="col-4">
-                    <div class="card" style="width: 18rem;">
+        <div class="container-fluid">
+            <div class="row row-cols-1 row-cols-md-5 g-4">
+                {% for product in object_list %}
+                <div class="col">
+                    <div class="card h-100">
                         <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" class="card-img-top" alt="...">
                         <div class="card-body">
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text">${{ product.price }}</p>
-                            <a href="{{ product.get_absolute_url }}" class="btn btn-primary">Перейти</a>
+                            <a href="{{ product.get_absolute_url }}" class="btn btn-primary mb-0">Перейти</a>
                         </div>
+                        <div class="card-footer bg-transparent border-primary">Подвал</div>
                     </div>
                 </div>
                 {% endfor %}
+
             </div>
         </div>
     </div>
-</div>
+    <div class="d-flex justify-content-center mt-5">
+        <nav aria-label="Пример навигации по страницам">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">Предыдущая</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Следующая</a></li>
+            </ul>
+        </nav>
+    </div>
 
-{% endblock %}
+    {% endblock %}
