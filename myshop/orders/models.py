@@ -19,6 +19,7 @@ class Order(models.Model):
         null=True,
         blank=True,
         verbose_name="Покупатель",
+        related_name="orders",
     )
     first_name = models.CharField("имя", max_length=50)
     last_name = models.CharField("фамилия", max_length=50)
