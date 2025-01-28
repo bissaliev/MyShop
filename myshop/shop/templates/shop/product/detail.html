@@ -23,6 +23,9 @@
                         <h5 class="card-text">
                             ${{ product.price }}
                         </h5>
+                        <h5 class="card-text">
+                            Осталось <span class="badge bg-secondary">{{ product.quantity }}</span>
+                        </h5>
                         <p class="card-text">
                             <!--Форма добавления товара в корзину-->
                             <form class="add-to-cart-form form-group" action="{% url 'cart:cart_add' product.id %}" method="post">
@@ -30,7 +33,7 @@
                                 <div class="input-group">
                                     <div class="col-auto">
                                         <select class="form-select" name="quantity" id="id_quantity">
-                                            {% for item in cart_product_form.quantity %}
+                                            {% for item in form.quantity %}
                                             {{ item }}
                                             {% endfor %}
                                         </select>
@@ -40,19 +43,19 @@
                             </form>
                             <!--Форма добавления товара в корзину-->
                         </p>
-                        <p class="card-text">{{ product.description|linebreaks }}</p>
                         <p class="card-text">
                             <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                                 Описание
                             </button>
                         </p>
-                        <div class="collapse" id="collapseExample">
-                            <div class="card card-body">
-                                {{ product.description|linebreaks }}
-                            </div>
-                            </p>
-                        </div>
+
                     </div>
+                </div>
+                <div class="collapse" id="collapseExample">
+                    <div class="text-start m-5">
+                        {{ product.description|linebreaks }}
+                    </div>
+                    </p>
                 </div>
             </div>
         </div>
