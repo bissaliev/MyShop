@@ -40,6 +40,9 @@ class Product(models.Model):
     description = models.TextField("описание товара", blank=True)
     price = models.DecimalField("цена товара", max_digits=10, decimal_places=2)
     available = models.BooleanField("наличие товара", default=True)
+    quantity = models.PositiveIntegerField(
+        default=0, verbose_name="Количество товара на складе"
+    )
     created = models.DateTimeField("дата создания", auto_now_add=True)
     updated = models.DateTimeField("дата обновления", auto_now=True)
 
@@ -58,3 +61,8 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("shop:product_detail", args=[self.id, self.slug])
+
+    def save(self, *args, **kwargs):
+        if self.quantity < 0:
+            raise ValueError("Количество товаров не должно быть меньше 0.")
+        return super().save(*args, **kwargs)
