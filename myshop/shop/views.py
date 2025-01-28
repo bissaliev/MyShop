@@ -1,39 +1,39 @@
 from cart.forms import CartAddProductForm
-from django.shortcuts import get_object_or_404, render
-from django.views import View
+from django.shortcuts import get_object_or_404
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormMixin
+from django.views.generic.list import ListView
 
 from .models import Category, Product
 
 
-class ProductListView(View):
+class ProductListView(ListView):
     """Список товаров с фильтрацией по категориям"""
 
-    def get(self, request, category_slug=None):
+    queryset = Product.objects.filter(available=True)
+    template_name = "shop/product/list.html"
+
+    def get_context_data(self, **kwargs):
         category = None
-        categories = Category.objects.all()
-        products = Product.objects.filter(available=True)
+        context = super().get_context_data(**kwargs)
+        context["categories"] = Category.objects.all()
+        category_slug = self.kwargs.get("category_slug")
         if category_slug:
             category = get_object_or_404(Category, slug=category_slug)
-            products = products.filter(category=category)
-        return render(
-            request,
-            "shop/product/list.html",
-            {
-                "category": category,
-                "categories": categories,
-                "products": products,
-            },
-        )
+            context["category"] = category
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        category_slug = self.kwargs.get("category_slug")
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+        return queryset
 
 
-class ProductDetailView(View):
-    """Детальная информации товара"""
+class ProductDetailView(FormMixin, DetailView):
+    """Описание товара"""
 
-    def get(self, request, id, slug):
-        product = get_object_or_404(Product, id=id, slug=slug, available=True)
-        cart_product_form = CartAddProductForm()
-        return render(
-            request,
-            "shop/product/detail.html",
-            {"product": product, "cart_product_form": cart_product_form},
-        )
+    template_name = "shop/product/detail.html"
+    queryset = Product.objects.filter(available=True)
+    form_class = CartAddProductForm
