@@ -9,6 +9,7 @@ from django.utils.safestring import mark_safe
 from .models import Order, OrderItem
 
 
+@admin.action(description="Экспорт в CSV")
 def export_to_csv(modeladmin, request, queryset):
     """
     Административное действие по скачиванию списка заказов в формате CSV-файла.
@@ -37,9 +38,7 @@ def export_to_csv(modeladmin, request, queryset):
     return response
 
 
-export_to_csv.short_description = "Экспорт в CSV"
-
-
+@admin.action(description="Идентификатор платежа")
 def order_stripe_payment(obj):
     """
     Принимает в качестве аргумента объект Order и
@@ -52,24 +51,21 @@ def order_stripe_payment(obj):
     return ""
 
 
-order_stripe_payment.short_description = "Stripe payment"
-
-
+@admin.action(description="Счет-фактура")
 def order_detail(obj):
     """
     Функция принимает объект Order в качестве аргумента и
     возвращает HTML-ссылку на URL-адрес admin_order_detail.
     """
     url = reverse("orders:admin_order_detail", args=[obj.id])
-    return mark_safe(f'<a href="{url}">View</a>')
+    return mark_safe(f'<a href="{url}">Обзор</a>')
 
 
+@admin.action(description="Скачать")
 def order_pdf(obj):
+    """Скачать pdf-файл счет-фактуры."""
     url = reverse("orders:admin_order_pdf", args=[obj.id])
     return mark_safe(f'<a href="{url}">PDF</a>')
-
-
-order_pdf.short_description = "Invoice"
 
 
 class OrderItemInline(admin.TabularInline):
