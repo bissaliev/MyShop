@@ -29,14 +29,9 @@
             <td class="text-end">{{ product.name }}</td>
             <td class="text-end">
                 <!--Форма обновления количества товара в корзине-->
-                <form class="add-to-cart-form" action="{% url 'cart:cart_add' product.id %}" method="post">
-                    <div class="input-group w-50">
-                        {{ item.form.quantity|addclass:'form-control' }}
-                        {{ item.form.override }}
-                        <button class="btn btn-primary" type="submit">Обновить</button>
-                    </div>
-                    {% csrf_token %}
-                </form>
+                {% with item.form as form %}
+                {% include 'orders/includes/form_add_product.html' %}
+                {% endwith %}
                 <!--Форма обновления количества товара в корзине-->
             </td>
             <td class="text-end">

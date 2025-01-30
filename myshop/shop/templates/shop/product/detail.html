@@ -1,6 +1,7 @@
 <!-- Детальная информация о товаре-->
 {% extends "shop/base.html" %}
 {% load static %}
+{% load custom_tags %}
 {% block title %}
 {{ product.name }}
 {% endblock %}
@@ -27,21 +28,9 @@
                             Осталось <span class="badge bg-secondary">{{ product.quantity }}</span>
                         </h5>
                         <p class="card-text">
-                            <!--Форма добавления товара в корзину-->
-                            <form class="add-to-cart-form form-group" action="{% url 'cart:cart_add' product.id %}" method="post">
-                                {% csrf_token %}
-                                <div class="input-group">
-                                    <div class="col-auto">
-                                        <select class="form-select" name="quantity" id="id_quantity">
-                                            {% for item in form.quantity %}
-                                            {{ item }}
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <button class="btn btn-primary" type="submit">Добавить в корзину</button>
-                                </div>
-                            </form>
-                            <!--Форма добавления товара в корзину-->
+                            <!--Форма обновления количества товара в корзине-->
+                            {% include 'orders/includes/form_add_product.html' %}
+                            <!--Форма обновления количества товара в корзине-->
                         </p>
                         <p class="card-text">
                             <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">

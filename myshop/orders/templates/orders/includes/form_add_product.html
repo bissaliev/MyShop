@@ -1,0 +1,18 @@
+{% load custom_tags %}
+<!--Форма обновления количества товара в корзине-->
+<form class="add-to-cart-form" action="{% url 'cart:cart_add' product.id %}" method="post">
+    <div class="input-group w-50">
+        {{ form.quantity|addclass:'form-control' }}
+        {{ form.override }}
+        <button class="btn btn-primary" type="submit">
+
+            {% if "/cart/" in request.path %}
+            Обновить
+            {% else %}
+            Добавить в корзину
+            {% endif %}
+
+        </button>
+    </div>
+    {% csrf_token %}
+</form>
