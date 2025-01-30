@@ -6,36 +6,23 @@
 {% endblock %}
 {% block content %}
 
-<div class="row">
-    <div class="col-2">
-        <!-- Категории -->
-        <div class="container">
-            <h1>Категории</h1>
-            <div class="list-group">
-                <a href="/" class="list-group-item list-group-item-primary list-group-item-action {% if not category %}active{% endif %}">Все товары</a>
-                {% for c in categories %}
-                <a href="{{ c.get_absolute_url }}" class="list-group-item list-group-item-primary list-group-item-action {% if category.slug == c.slug %}active{% endif %}" aria-current="true">
-                    {{ c.name }}
-                </a>
-                {% endfor %}
-            </div>
-        </div>
-        <!-- Категории -->
-    </div>
-    <div class="col-10">
+<div class="d-flex flex-column">
+    <div class="container py-3">
         <h1>{% if category %}{{ category.name }}{% else %}Все товары{% endif %}</h1>
-        <div class="container-fluid">
-            <div class="row row-cols-1 row-cols-md-5 g-4">
+    </div>
+    <div class="col">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-md-6 g-4">
                 {% for product in object_list %}
                 <div class="col">
                     <div class="card h-100">
                         <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" class="card-img-top" alt="...">
                         <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
+                            <h6 class="card-title">{{ product.name }}</h6>
                             <p class="card-text">${{ product.price }}</p>
                             <a href="{{ product.get_absolute_url }}" class="btn btn-primary mb-0">Перейти</a>
                         </div>
-                        <div class="card-footer bg-transparent border-primary">Подвал</div>
+                        <div class="card-footer bg-transparent border-primary">Осталось <span class="badge text-bg-primary">{{ product.quantity }}</span></div>
                     </div>
                 </div>
                 {% endfor %}
@@ -43,16 +30,11 @@
             </div>
         </div>
     </div>
-    <div class="d-flex justify-content-center mt-5">
-        <nav aria-label="Пример навигации по страницам">
-            <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#">Предыдущая</a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Следующая</a></li>
-            </ul>
-        </nav>
-    </div>
+
+    {% if page_obj.has_other_pages %}
+
+    {% include 'includes/paginator.html' %}
+
+    {% endif %}
 
     {% endblock %}

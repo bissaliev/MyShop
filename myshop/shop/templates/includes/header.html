@@ -1,33 +1,36 @@
-<div class="container-fluid px-0">
+<div class="container-fluid px-0 bg-primary">
 
-    <nav class="navbar navbar-expand-lg bg-body border-bottom">
+    <nav class="navbar navbar-expand-lg border-bottom py-3">
         <div class="container">
-            <a class="navbar-brand" href="/">My shop</a>
+            <a class="navbar-brand fs-2" href="/">My shop</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Переключатель навигации">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <a class="navbar-brand ms-auto me-0" href="#">Каталог</a>
+                <button class="ms-auto me-0 btn btn-outline-dark m-sm-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling"
+                    aria-controls="offcanvasScrolling">Каталог</button>
 
-                <form class="d-flex me-0 ms-auto w-50" role="search">
+
+
+                <form class="d-flex w-50 m-sm-3 m-lg-auto" role="search">
                     <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Поиск">
-                    <button class="btn btn-outline-primary" type="submit">Поиск</button>
+                    <button class="btn btn-outline-dark" type="submit">Поиск</button>
                 </form>
 
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Избранное</a>
+                    <li class="nav-item pe-1 m-sm-3 m-lg-auto">
+                        <a class="btn btn-outline-dark" aria-current="page" href="#">Избранное</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Заказы</a>
+                    <li class="nav-item pe-1 m-sm-3 m-lg-auto">
+                        <a class="btn btn-outline-dark" href="#">Заказы</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Корзина</a>
+                    <li class="nav-item pe-1 m-sm-3 m-lg-auto">
+                        <a class="btn btn-outline-dark" href="{% url 'cart:cart_detail' %}">Корзина <span id="cart-total" class="badge text-bg-primary">{{ cart|length }}</span></a>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown m-sm-3 m-lg-auto">
                         {% if request.user.is_authenticated %}
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="dropdown-toggle btn btn-outline-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ request.user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
@@ -55,3 +58,27 @@
     </nav>
 
 </div>
+
+{% load custom_tags %}
+
+<!--Offcanvas-->
+<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Каталог</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Закрыть"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="list-group">
+            <a href="/" class="list-group-item list-group-item-primary list-group-item-action {% if not category %}active{% endif %}">Все товары</a>
+            {% get_categories as categories %}
+            {% for c in categories %}
+            <a href="{{ c.get_absolute_url }}" class="list-group-item list-group-item-action list-group-item-primary {% if category.slug == c.slug %}active{% endif %}">
+                <div class="d-flex justify-content-between align-items-center">
+                    {{ c.name }}<span class="badge bg-primary rounded-pill">{{ c.products.count }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<!--Offcanvas-->
