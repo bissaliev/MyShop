@@ -75,6 +75,12 @@ class Cart:
         """
         return sum(item["quantity"] for item in self.cart.values())
 
+    def __contains__(self, item):
+        return item in self.cart
+
+    def __getitem__(self, key):
+        return self.cart[key]
+
     def get_total_price(self) -> Decimal:
         """Общая стоимости товара в корзине."""
         return sum(
