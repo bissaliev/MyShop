@@ -7,13 +7,13 @@ urlpatterns = [
     path("create/", views.OrderCreateView.as_view(), name="order_create"),
     # admin
     path(
-        "admin/order/<int:order_id>/",
-        views.admin_order_detail,
+        "admin/orders/<int:pk>/",
+        views.AdminOrderDetailView.as_view(),
         name="admin_order_detail",
     ),
     path(
-        "admin/order/<int:order_id>/pdf/",
-        views.admin_order_pdf,
+        "admin/orders/<int:pk>/pdf/",
+        views.AdminOrderPdfView.as_view(),
         name="admin_order_pdf",
     ),
 ]

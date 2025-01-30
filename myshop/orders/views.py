@@ -1,50 +1,66 @@
 from cart.cart import Cart
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db import transaction
+from django.forms import ValidationError
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
 from orders.services.pdf import generate_invoice_pdf
+from shop.models import Product
 
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
 from .tasks import order_created
 
 
-class OrderCreateView(View):
-    """Размещение заказа"""
+class UserInitialFormMixin:
+    """Миксин для добавления учетных данных пользователя в форму"""
 
-    form_class = OrderCreateForm
-
-    def get(self, request):
-        initial_data = {}
-        if request.user.is_authenticated:
+    def get_initial(self):
+        """
+        Устанавливаем первоначальные значения,
+        в случае оформления заказа зарегистрированным пользователем
+        """
+        initial = super().get_initial()
+        if self.request.user.is_authenticated:
             for field in self.form_class.Meta.fields:
-                if hasattr(request.user, field):
-                    initial_data[field] = getattr(request.user, field)
-        form = self.form_class(initial=initial_data)
-        return render(request, "orders/order/create.html", {"form": form})
+                if hasattr(self.request.user, field):
+                    initial[field] = getattr(self.request.user, field)
+        return initial
 
-    def post(self, request):
-        cart = Cart(request)
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            order = form.save(commit=False)
-            if cart.coupon:
-                order.coupon = cart.coupon
-                order.discount = cart.coupon.discount
-            order.save()
-            self.create_order_item(order, cart)
-            # очистить корзину
-            cart.clear()
-            order_created.delay(order.id)
-            # задать заказ в сеансе
-            request.session["order_id"] = order.id
-            # перенаправить к платежу
-            return redirect(reverse("payment:process"))
+
+class OrderItemMixin:
+    """Класс миксин добавляет обработку позиций заказа"""
+
+    def form_valid(self, form):
+        cart = Cart(self.request)
+        try:
+            with transaction.atomic():
+                order = form.save()
+                if cart.coupon:
+                    order.coupon = cart.coupon
+                    order.discount = cart.coupon.discount
+                if self.request.user.is_authenticated:
+                    order.user = self.request.user
+                order.save()
+                self.create_order_item(order, cart)
+                cart.clear()
+                order_created.delay(order.id)
+                self.request.session["order_id"] = order.id
+        except ValidationError as e:
+            messages.error(self.request, str(e))
+            return self.render_to_response(self.get_context_data(form=form))
+        messages.success(self.request, "Заказ оформлен")
+        return super().form_valid(form)
 
     def create_order_item(self, order, cart):
+        """Создание позиций товаров и привязка их к заказу."""
         items = []
+        products = []
         for item in cart:
             items.append(
                 OrderItem(
@@ -54,23 +70,49 @@ class OrderCreateView(View):
                     quantity=item["quantity"],
                 )
             )
+            if item["product"].quantity < item["quantity"]:
+                raise ValidationError(
+                    f"Недостаточное количество товара {item['product'].name} "
+                    "в наличие."
+                )
+            item["product"].quantity -= item["quantity"]
+            products.append(item["product"])
+        Product.objects.bulk_update(products, fields=["quantity"])
         OrderItem.objects.bulk_create(items)
 
 
-@staff_member_required
-def admin_order_detail(request, order_id):
+class OrderCreateView(UserInitialFormMixin, OrderItemMixin, CreateView):
+    """Создание заказа"""
+
+    form_class = OrderCreateForm
+    model = Order
+    template_name = "orders/order/create.html"
+    success_url = reverse_lazy("payment:process")
+
+
+class AdminStaffRequiredMixin(UserPassesTestMixin):
+    """Разрешаем доступ только персоналу"""
+
+    def test_func(self):
+        """Разрешаем доступ только персоналу (is_staff=True)."""
+        return self.request.user.is_staff
+
+
+class AdminOrderDetailView(AdminStaffRequiredMixin, DetailView):
     """
     Представление для показа информации о заказе для администратора.
     """
-    order = get_object_or_404(Order, id=order_id)
-    return render(request, "admin/orders/order/detail.html", {"order": order})
+
+    model = Order
+    template_name = "admin/orders/order/detail.html"
 
 
-@staff_member_required
-def admin_order_pdf(request, order_id):
+class AdminOrderPdfView(AdminStaffRequiredMixin, View):
     """Генерация счета-фактуры в формате PDF для панели администратора."""
-    order = get_object_or_404(Order, id=order_id)
-    pdf_content = generate_invoice_pdf(order)
-    response = HttpResponse(pdf_content, content_type="application/pdf")
-    response["Content-Disposition"] = f"filename=order_{order.id}.pdf"
-    return response
+
+    def get(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        pdf_content = generate_invoice_pdf(order)
+        response = HttpResponse(pdf_content, content_type="application/pdf")
+        response["Content-Disposition"] = f"filename=order_{order.id}.pdf"
+        return response
