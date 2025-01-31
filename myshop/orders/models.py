@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.urls import reverse
 from shop.models import Product
 
 User = get_user_model()
@@ -21,6 +22,7 @@ class Order(models.Model):
         verbose_name="Покупатель",
         related_name="orders",
     )
+    session_key = models.CharField(max_length=32, null=True, blank=True)
     first_name = models.CharField("имя", max_length=50)
     last_name = models.CharField("фамилия", max_length=50)
     email = models.EmailField("электронный адрес")
@@ -58,6 +60,9 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id}"
 
+    def get_total_quantity(self):
+        return sum(i.quantity for i in self.items.all())
+
     def get_total_cost(self) -> Decimal:
         """Общая сумма заказа с учетом скидки"""
         total_cost = self.get_total_cost_before_discount()
@@ -81,6 +86,9 @@ class Order(models.Model):
             return ""
         path = "/test/" if "_test_" in settings.STRIPE_SECRET_KEY else "/"
         return f"https://dashboard.stripe.com{path}payments/{self.stripe_id}"
+
+    def get_absolute_url(self):
+        return reverse("orders:order_detail", kwargs={"pk": self.pk})
 
 
 class OrderItem(models.Model):
