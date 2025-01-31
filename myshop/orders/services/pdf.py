@@ -8,7 +8,7 @@ from orders.models import Order
 
 def generate_invoice_pdf(order: Order):
     """Генерация PDF для счета-фактуры"""
-    html = render_to_string("orders/order/pdf.html", {"order": order})
+    html = render_to_string("orders/invoice_pdf.html", {"order": order})
     stylesheets = [
         weasyprint.CSS(settings.BASE_DIR / "static/css/pdf.css"),
         weasyprint.CSS(settings.BASE_DIR / "static/css/bootstrap.min.css"),
