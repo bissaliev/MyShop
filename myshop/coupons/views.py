@@ -1,4 +1,6 @@
-from django.shortcuts import redirect
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 
@@ -13,6 +15,7 @@ class CouponApplyView(View):
     """
 
     def post(self, request):
+        referer = request.META.get("HTTP_REFERER", reverse("cart:cart_detail"))
         now = timezone.now()
         form = CouponApplyForm(request.POST)
         if form.is_valid():
@@ -26,5 +29,8 @@ class CouponApplyView(View):
                 )
                 request.session["coupon_id"] = coupon.id
             except Coupon.DoesNotExist:
+                messages.error(request, "Возможно купон истек")
                 request.session["coupon_id"] = None
-        return redirect("cart:cart_detail")
+            else:
+                messages.success(request, "Купон применен")
+        return HttpResponseRedirect(referer)
