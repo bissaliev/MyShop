@@ -102,7 +102,6 @@ class OrderCreateView(
 
     form_class = OrderCreateForm
     model = Order
-    template_name = "orders/order/create.html"
 
 
 class OrderInvoiceView(View):
