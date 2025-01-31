@@ -1,14 +1,17 @@
 from cart.cart import Cart
+from coupons.forms import CouponApplyForm
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db import transaction
+from django.db.models import F
 from django.forms import ValidationError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, DeleteView
+from django.views.generic.list import ListView
 from orders.services.pdf import generate_invoice_pdf
 from shop.models import Product
 
@@ -33,7 +36,7 @@ class UserInitialFormMixin:
         return initial
 
 
-class OrderItemMixin:
+class OrderItemCreateMixin:
     """Класс миксин добавляет обработку позиций заказа"""
 
     def form_valid(self, form):
@@ -46,6 +49,8 @@ class OrderItemMixin:
                     order.discount = cart.coupon.discount
                 if self.request.user.is_authenticated:
                     order.user = self.request.user
+                else:
+                    order.session_key = self.request.session.session_key
                 order.save()
                 self.create_order_item(order, cart)
                 cart.clear()
@@ -81,13 +86,85 @@ class OrderItemMixin:
         OrderItem.objects.bulk_create(items)
 
 
-class OrderCreateView(UserInitialFormMixin, OrderItemMixin, CreateView):
+class CouponFormContext:
+    """Миксин добавления формы купона в контекст"""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["coupon_form"] = CouponApplyForm
+        return context
+
+
+class OrderCreateView(
+    CouponFormContext, UserInitialFormMixin, OrderItemCreateMixin, CreateView
+):
     """Создание заказа"""
 
     form_class = OrderCreateForm
     model = Order
     template_name = "orders/order/create.html"
-    success_url = reverse_lazy("payment:process")
+
+
+class OrderInvoiceView(View):
+    """Генерация счета-фактуры в формате PDF."""
+
+    def get(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        pdf_content = generate_invoice_pdf(order)
+        response = HttpResponse(pdf_content, content_type="application/pdf")
+        response["Content-Disposition"] = f"filename=order_{order.id}.pdf"
+        return response
+
+
+class OwnerFilterMixin:
+    """Миксин позволяет фильтровать заказы по владельцу заказа"""
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_authenticated:
+            return queryset.filter(user=self.request.user)
+        session_key = self.request.session.session_key
+        return queryset.filter(session_key=session_key)
+
+
+class OrderUsersListView(OwnerFilterMixin, ListView):
+    """Список заказов пользователя"""
+
+    queryset = Order.objects.prefetch_related("items", "items__product")
+
+
+class UpdateProductQuantityMixin:
+    """Миксин позволяет восстановить количество товаров после отмены заказа"""
+
+    def form_valid(self, form):
+        referer = self.request.META.get("HTTP_REFERER", self.success_url)
+        try:
+            with transaction.atomic():
+                items = self.object.items.values("product_id", "quantity")
+                for item in items:
+                    Product.objects.filter(id=item["product_id"]).update(
+                        quantity=F("quantity") + item["quantity"]
+                    )
+                response = super().form_valid(form)
+            messages.success(self.request, "Заказ удален")
+            return response
+        except Exception:
+            return HttpResponseRedirect(referer)
+
+
+class OrderDeleteView(UpdateProductQuantityMixin, DeleteView):
+    """Удаление неоплаченных заказов"""
+
+    queryset = Order.objects.filter(paid=False)
+    success_url = reverse_lazy("orders:order_user_list")
+
+
+class OrderDetailView(DetailView):
+    """Детальная информация заказа"""
+
+    queryset = Order.objects.select_related("coupon").prefetch_related(
+        "items", "items__product"
+    )
 
 
 class AdminStaffRequiredMixin(UserPassesTestMixin):
@@ -107,12 +184,7 @@ class AdminOrderDetailView(AdminStaffRequiredMixin, DetailView):
     template_name = "admin/orders/order/detail.html"
 
 
-class AdminOrderPdfView(AdminStaffRequiredMixin, View):
+class AdminOrderPdfView(AdminStaffRequiredMixin, OrderInvoiceView):
     """Генерация счета-фактуры в формате PDF для панели администратора."""
 
-    def get(self, request, pk):
-        order = get_object_or_404(Order, pk=pk)
-        pdf_content = generate_invoice_pdf(order)
-        response = HttpResponse(pdf_content, content_type="application/pdf")
-        response["Content-Disposition"] = f"filename=order_{order.id}.pdf"
-        return response
+    pass
