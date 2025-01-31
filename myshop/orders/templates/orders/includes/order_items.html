@@ -1,42 +1,43 @@
-<table style="width:100%">
+<table style="width:100%" class="table table-bordered border-dark table-striped table-hover align-middle">
     <thead>
-        <tr>
-            <th>Товар</th>
-            <th>Цена</th>
-            <th>Количество</th>
-            <th>Общая стоимость</th>
+        <tr class="table-primary table-bordered border-dark">
+            <th class="bg-primary" scope="col">Товар</th>
+            <th class="bg-primary" scope="col">Цена</th>
+            <th class="bg-primary" scope="col">Количество</th>
+            <th class="bg-primary" scope="col">Общая стоимость</th>
         </tr>
     </thead>
 
     <tbody>
         {% for item in order_items %}
-        <tr class="row{% cycle '1' '2' %}">
-            <td><a href="{% url 'shop:product_detail' item.product.id item.product.slug %}">{{ item.product.name }}</a></td>
-            <td class="num">${{ item.price }}</td>
-            <td class="num">{{ item.quantity }}</td>
-            <td class="num">${{ item.get_cost }}</td>
+        <tr class="table-bordered border-dark">
+            <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                    href="{% url 'shop:product_detail' item.product.id item.product.slug %}">{{ item.product.name }}</a></td>
+            <td>${{ item.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>${{ item.get_cost }}</td>
         </tr>
         {% endfor %}
 
         {% if order.coupon %}
-        <tr class="subtotal">
+        <tr class="table-danger table-bordered border-dark">
             <td colspan="3">Сумма без скидки</td>
-            <td class="num">
+            <td>
                 ${{ order.get_total_cost_before_discount|floatformat:2 }}
             </td>
         </tr>
-        <tr>
+        <tr class="table-success table-bordered border-dark">
             <td colspan="3">
                 "{{ order.coupon.code }}" купон (скидка {{ order.discount }}%)
             </td>
-            <td class="num neg">
+            <td>
                 – ${{ order.get_discount|floatformat:2 }}
             </td>
         </tr>
         {% endif %}
-        <tr class="total">
-            <td colspan="3">Итого</td>
-            <td class="num">${{ order.get_total_cost|floatformat:2 }}</td>
+        <tr class="table-bordered border-dark">
+            <td class="bg-primary" colspan="3">Итого</td>
+            <td class="bg-primary">${{ order.get_total_cost|floatformat:2 }}</td>
         </tr>
     </tbody>
 </table>
