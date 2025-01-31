@@ -1,6 +1,21 @@
 {% extends "shop/base.html" %}
-{% block title %}Payment successful{% endblock %}
+{% block title %}Платеж прошел успешно{% endblock %}
 {% block content %}
-<h1>Your payment was successful</h1>
-<p>Your payment has been processed successfully.</p>
+<div class="container my-5">
+    <div class="d-flex justify-content-center align-items-center">
+
+        <div class="card text-bg-success align-items-center justify-content-center" style="height: 500px;">
+            <h1 class="card-header text-center">Ваш платеж прошел успешно</h1>
+            <div class="card-body mt-5">
+                <h1 class="card-title mt-5">Спасибо</h1>
+                <p class="card-text">
+
+                    <h4>Ваш платеж был успешно обработан.</h4>
+                </p>
+                <a href="/" class="btn btn-outline-light">Продолжить покупки</a>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

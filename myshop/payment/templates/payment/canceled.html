@@ -1,6 +1,22 @@
 {% extends "shop/base.html" %}
-{% block title %}Payment canceled{% endblock %}
+{% block title %}Платеж отменен{% endblock %}
 {% block content %}
-<h1>Your payment has not been processed</h1>
-<p>There was a problem processing your payment.</p>
+
+<div class="container my-5">
+    <div class="d-flex justify-content-center align-items-center">
+
+        <div class="card text-bg-danger align-items-center justify-content-center" style="height: 500px;">
+            <h1 class="card-header text-center">Ваш платеж не был обработан</h1>
+            <div class="card-body mt-5">
+                <h1 class="card-title mt-5">Извините</h1>
+                <p class="card-text">
+
+                    <h4>Возникла проблема с обработкой вашего платежа.</h4>
+                </p>
+                <a href="/" class="btn btn-outline-light">Продолжить покупки</a>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
