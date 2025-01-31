@@ -1,5 +1,11 @@
 @import url(//fonts.googleapis.com/css?family=Ubuntu);
 
+
+html,
+body {
+    margin: 0px;
+}
+
 /* ==========bootstrap======================= */
 
 
