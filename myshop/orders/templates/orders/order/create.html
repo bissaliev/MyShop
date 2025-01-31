@@ -1,28 +1,110 @@
 {% extends "shop/base.html" %}
 {% block title %}Оформление заказа{% endblock %}
+{% load custom_tags %}
 {% block content %}
-<h1>Оформление заказа</h1>
-<div class="order-info">
-    <h3>Ваш заказ</h3>
-    <ul>
-        {% for item in cart %}
-        <li>
-            {{ item.quantity }}x {{ item.product.name }}
-            <span>${{ item.total_price }}</span>
-        </li>
-        {% endfor %}
-        {% if cart.coupon %}
-        <li>
-            "{{ cart.coupon.code }}" ({{ cart.coupon.discount }}% off)
-            <span class="neg">- ${{ cart.get_discount|floatformat:2 }}</span>
-        </li>
-        {% endif %}
-    </ul>
-    <p>Итого: ${{ cart.get_total_price_after_discount|floatformat:2 }}</p>
+<div class="container my-5 p-5 border border-primary rounded">
+    <div class="row g-5">
+        <div class="col-md-5 col-lg-4 order-md-last">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-primary">Ваш заказ</span>
+                <span class="badge bg-primary rounded-pill">{{ cart|length }}</span>
+            </h4>
+            <ul class="list-group mb-3">
+
+                {% for item in cart %}
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div>
+                        <h6 class="my-0">{{ item.product.name }}</h6>
+                        <small class="text-body-secondary">Количество: {{ item.quantity }}</small>
+                    </div>
+                    <span class="text-body-secondary">${{ item.total_price }}</span>
+                </li>
+                {% endfor %}
+
+                {% if cart.coupon %}
+                <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
+                    <div class="text-success">
+                        <h6 class="my-0">Промо Код</h6>
+                        <small>{{ cart.coupon.code }} Скидка {{ cart.coupon.discount }}%</small>
+                    </div>
+                    <span class="text-success">−${{ cart.get_discount|floatformat:2 }}</span>
+                </li>
+                {% endif %}
+
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Итого</span>
+                    <strong>${{ cart.get_total_price_after_discount|floatformat:2 }}</strong>
+                </li>
+            </ul>
+
+            {% if coupon_form %}
+            <form class="card p-2" method="post" action="{% url 'coupons:apply' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    {{ coupon_form.code|addclass:'form-control' }}
+                    <button type="submit" class="btn btn-secondary">Применить</button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+        <div class="col-md-7 col-lg-8">
+            <h4 class="mb-3">Оформление заказа</h4>
+            <form class="needs-validation" method="post">
+                <div class="row g-3">
+                    {% csrf_token %}
+
+                    <div class="col-sm-6">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                        {{ form.first_name|addclass:'form-control' }}
+                        <div class="invalid-feedback">
+                            Valid first name is required.
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                        {{ form.last_name|addclass:'form-control' }}
+                        <div class="invalid-feedback">
+                            Valid last name is required.
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                        {{ form.email|addclass:'form-control' }}
+                        <div class="invalid-feedback">
+                            Please enter a valid email address for shipping updates.
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
+                        {{ form.address|addclass:'form-control' }}
+                        <div class="invalid-feedback">
+                            Please enter your shipping address.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.city.id_for_label }}" class="form-label">{{ form.city.label }}</label>
+                        {{ form.city|addclass:'form-control' }}
+                        <div class="invalid-feedback">
+                            Zip code required.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.postal_code.id_for_label }}" class="form-label">{{ form.postal_code.label }}</label>
+                        {{ form.postal_code|addclass:'form-control' }}
+                        <div class="invalid-feedback">
+                            Zip code required.
+                        </div>
+                    </div>
+                </div>
+
+                <button class="w-100 btn btn-primary btn-lg mt-4" type="submit">Разместить заказ</button>
+            </form>
+        </div>
+    </div>
 </div>
-<form method="post" class="order-form">
-    {{ form.as_p }}
-    <p><input type="submit" value="Разместить заказ"></p>
-    {% csrf_token %}
-</form>
 {% endblock %}
