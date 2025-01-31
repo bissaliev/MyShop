@@ -1,0 +1,45 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}Оплатите свой заказ{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1>
+        Заказа № {{ order.id }}
+
+        {% if order.paid %}
+        <span class="badge bg-success">Оплачен</span>
+        {% else %}
+        <span class="badge bg-danger">В ожидании оплаты</span>
+        {% endif %}
+    </h1>
+    {% with order.items.all as order_items %}
+    {% include 'orders/includes/order_items.html' %}
+    {% endwith %}
+
+
+    <!--Форма создания сеанса оформления платежа Stripe-->
+
+    {% if not order.paid %}
+    <div class="d-flex justify-content-around mt-5">
+        <div>
+            <form action="{% url 'payment:process' order.pk %}" method="post">
+                <input type="submit" value="Оплатить сейчас" class="btn btn-lg btn-primary">
+                {% csrf_token %}
+            </form>
+        </div>
+        <div>
+            <form action="{% url 'orders:order_delete' order.pk %}" method="post">
+                <input type="submit" value="Отменить" class="btn btn-lg btn-danger">
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="d-flex justify-content-start mt-5">
+        <a class="btn btn-primary" href="{% url 'orders:order_invoice' order.id %}">Скачать счет-фактуру</a>
+    </div>
+    {% endif %}
+    <!--Форма создания сеанса оформления платежа Stripe-->
+</div>
+{% endblock %}
