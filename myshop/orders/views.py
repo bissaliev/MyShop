@@ -180,7 +180,7 @@ class AdminOrderDetailView(AdminStaffRequiredMixin, DetailView):
     """
 
     model = Order
-    template_name = "admin/orders/order/detail.html"
+    template_name = "admin/orders/order_info.html"
 
 
 class AdminOrderPdfView(AdminStaffRequiredMixin, OrderInvoiceView):
